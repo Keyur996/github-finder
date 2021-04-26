@@ -4,6 +4,7 @@ import "./App.css";
 import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
 import Navbar from "./components/layouts/Navbar";
 import Users from "./components/Users/Users";
+import User from "./components/Users/single-user/User";
 import Alert from "./components/layouts/Alert";
 import About from "./components/pages/About";
 import Search from "./components/Users/search/Search";
@@ -11,8 +12,10 @@ import Search from "./components/Users/search/Search";
 class App extends Component {
   state = {
     users: [],
+    user: {},
     loading: false,
     alert: null,
+    repos: [],
   };
 
   // async componentDidMount() {
@@ -34,6 +37,26 @@ class App extends Component {
     this.setState({ users: res.data.items, loading: false });
   };
 
+  //Get a Single Github User
+  getUser = async (userName) => {
+    this.setState({ loading: true });
+    const res = await axios.get(
+      `https://api.github.com/users/${userName}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRETE_KEY}`
+    );
+    console.log("Users: ", res.data);
+    this.setState({ user: res.data, loading: false });
+  }
+
+  // Get User Repo
+  getUserRepos = async (userName) => {
+    this.setState({ loading: true });
+    const res = await axios.get(
+      `https://api.github.com/users/${userName}/repos?per_page=5&sort=created:asc&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRETE_KEY}`
+    );
+    console.log("Users: ", res.data);
+    this.setState({ repos: res.data, loading: false });
+  }
+
   //for Show Alert
   showAlert = (msg, type) => {
     this.setState({ alert: { msg, type } });
@@ -47,6 +70,8 @@ class App extends Component {
   };
 
   render() {
+    const { loading, users, user, repos } = this.state;
+
     return (
       <Router>
         <div>
@@ -66,13 +91,22 @@ class App extends Component {
                       showAlert={this.showAlert}
                     />
                     <Users
-                      loading={this.state.loading}
-                      users={this.state.users}
+                      loading={loading}
+                      users={users}
                     />
                   </Fragment>
                 )}
               />
               <Route exact path="/about" component={About} />
+              <Route exact path="/user/:login" render={(props) => (
+                <User {...props}
+                  getUser={this.getUser}
+                  getUserRepos={this.getUserRepos}
+                  user={user}
+                  repos={repos}
+                  loading={loading}
+                />
+              )} />
             </Switch>
           </div>
         </div>
