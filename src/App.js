@@ -1,14 +1,13 @@
-import { Fragment } from "react";
 import "./App.css";
 import { Switch, Route, HashRouter as Router } from "react-router-dom";
 import Navbar from "./components/layouts/Navbar";
-import Users from "./components/Users/Users";
 import User from "./components/Users/single-user/User";
 import Alert from "./components/layouts/Alert";
+import Home from "./components/pages/Home";
 import About from "./components/pages/About";
-import Search from "./components/Users/search/Search";
 import GithubState from "./context/github/GithubState";
 import AlertState from "./context/alert/AlertState";
+import NotFound from "./components/pages/NotFound";
 
 const App = () => {
   // async componentDidMount() {
@@ -30,18 +29,10 @@ const App = () => {
             <div className="container">
               <Alert />
               <Switch>
-                <Route
-                  exact
-                  path="/"
-                  render={(props) => (
-                    <Fragment>
-                      <Search />
-                      <Users />
-                    </Fragment>
-                  )}
-                />
+                <Route exact path="/" component={Home} />
                 <Route exact path="/about" component={About} />
                 <Route exact path="/user/:login" component={User} />
+                <Route component={NotFound} />
               </Switch>
             </div>
           </div>
